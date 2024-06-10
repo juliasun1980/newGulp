@@ -47,6 +47,23 @@ const styles = () => {
         .on('end', () => console.log('Styles task completed'));
 }
 
+// Новая задача для media.css
+const mediaStyles = () => {
+    return src('src/SCSS/media.css')
+        .pipe(gulpif(!prod, sourcemaps.init()))
+        .pipe(concat('media.css'))
+        .pipe(autoprefixer({
+            cascade: false
+        }))
+        .pipe(gulpif(prod, cleanCSS({
+            level: 2
+        })))
+        .pipe(gulpif(!prod, sourcemaps.write()))
+        .pipe(dest('dist/css'))
+        .pipe(browserSync.stream())
+        .on('end', () => console.log('Media Styles task completed'));
+}
+
 const htmlMinify = () => {
     return src('src/**/*.html')
         .pipe(gulpif(prod, htmlMin({
@@ -95,6 +112,7 @@ const watchFiles = () => {
     });
     watch('src/**/*.html', htmlMinify);
     watch('src/SCSS/**/*.scss', styles);
+    watch('src/SCSS/media.css', mediaStyles); // Добавляем наблюдение за media.css
     watch('src/images/svg/**/*.svg', svgSprites);
     watch('src/js/**/*.js', scripts);
     watch('src/resources/**', resources);
@@ -113,9 +131,10 @@ const images = () => {
 }
 
 exports.styles = styles;
+exports.mediaStyles = mediaStyles; // Экспортируем новую задачу
 exports.scripts = scripts;
 exports.htmlMinify = htmlMinify;
-exports.dev = series(clean, resources, htmlMinify, scripts, styles, images, svgSprites, watchFiles);
-exports.build = series(isProd, clean, resources, htmlMinify, scripts, styles, images, svgSprites);
+exports.dev = series(clean, resources, htmlMinify, scripts, styles, mediaStyles, images, svgSprites, watchFiles); // Добавляем mediaStyles в задачу dev
+exports.build = series(isProd, clean, resources, htmlMinify, scripts, styles, mediaStyles, images, svgSprites); // Добавляем mediaStyles в задачу build
 
 exports.default = series(exports.dev);

@@ -34,7 +34,8 @@
   }
 
   &__item{
-    @include textWhite;
+    @include text;
+    color: white;
   }
 
 }
